@@ -1,6 +1,7 @@
 import UserModle from "@/models/userModle";
 import connectDB from "@/lib/dbConnect";
 import bcryptjs from "bcryptjs"
+import { sendVerificationEmail } from "@/helper/sendVerificationEmail";
 
 
 export async function POST(request: Request){
@@ -39,6 +40,11 @@ export async function POST(request: Request){
             existingUserByEmail.verifyCode = verifyCode;
             existingUserByEmail.verifyCodeExpiry = verifyCodeExpiry;
             await existingUserByEmail.save();
+
+            return  Response.json({
+                success: false,
+                message: "user present but not verified"
+            })
             
         }
 
@@ -57,7 +63,27 @@ export async function POST(request: Request){
 
         await newUser.save();
 
+       const emailResponce = await sendVerificationEmail(email, username, verifyCode)
+// console.log("emailresponce", emailResponce);
 
+       if (!emailResponce.success) {
+        return Response.json(
+            {
+                success: false,
+                message: emailResponce.message
+            },
+            {status: 500}
+        )
+       }
+       
+       
+
+       return Response.json(
+        {
+            success: true,
+            message: "signup success, please verify"
+        },{status: 200}
+    )
 
 
 
