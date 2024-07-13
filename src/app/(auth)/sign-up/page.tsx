@@ -5,7 +5,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import { signUpSchema } from '@/schemas/signUpSchema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import axios, { AxiosError } from 'axios'
@@ -29,6 +29,22 @@ function page() {
     defaultValues: {
       username: "",
       password: ""
+    }
+  })
+
+
+  useEffect(()=>{
+    const checkUsernameUnique = async  () => {
+     if (username) {
+      setIsCheckingUsername(true)
+      setUsernameMessage('')
+      try {
+        await axios.get(`/api/check-username-unique?username=${username}`)
+      } catch (error) {
+        
+      }
+      
+     }
     }
   })
 
@@ -63,6 +79,7 @@ function page() {
 
 
   return (
+    <>
     <div>
       <div>
 
@@ -127,6 +144,7 @@ function page() {
 
       </div>
     </div>
+    </>
   )
 }
 
